@@ -1,5 +1,4 @@
 /*jshint esversion: 8 */
-
 const express = require('express');
 const mongoose = require('mongoose');
 const fs = require('fs');
@@ -22,10 +21,10 @@ const Dealerships = require('./dealership');
 
 try {
   Reviews.deleteMany({}).then(()=>{
-    Reviews.insertMany(reviews_data['reviews']);
+    Reviews.insertMany(reviews_data.reviews);
   });
   Dealerships.deleteMany({}).then(()=>{
-    Dealerships.insertMany(dealerships_data['dealerships']);
+    Dealerships.insertMany(dealerships_data.dealerships);
   });
   
 } catch (error) {
@@ -35,7 +34,7 @@ try {
 
 // Express route to home
 app.get('/', async (req, res) => {
-    res.send("Welcome to the Mongoose API")
+    res.send("Welcome to the Mongoose API");
 });
 
 // Express route to fetch all reviews
@@ -58,57 +57,72 @@ app.get('/fetchReviews/dealer/:id', async (req, res) => {
   }
 });
 
+// Express route to fetch reviews carmake
+app.get('/fetchReviews/car/:carmake', async (req, res) => {
+    try {
+      const documents = await Reviews.find({car_make: req.params.carmake});
+      res.json(documents);
+    } catch (error) {
+      res.status(500).json({ error: 'Error fetching documents' });
+    }
+  });
+
+// Express route to fetch reviews :carmake/:model
+app.get('/fetchReviews/car/:carmake/:model', async (req, res) => {
+    try {
+      const documents = await Reviews.find();
+      res.json(documents);
+    } catch (error) {
+      res.status(500).json({ error: 'Error fetching documents' });
+    }
+  });
+  
 // Express route to fetch all dealerships
 app.get('/fetchDealers', async (req, res) => {
     try {
-      // Retrieve all dealerships from the database.
-      const documents = await Dealerships.find();
-      res.json(documents); // Return the dealerships as JSON.
-    } catch (error) {
-      // Handle error and return a 500 status with error message if there is an issue.
-      res.status(500).json({ error: 'Error fetching dealers' });
-    }
-  });
-  
-  // Express route to fetch dealers by a particular state
-  app.get('/fetchDealers/:state', async (req, res) => {
-    try {
-      // Retrieve dealerships that match the specified state from the URL parameter.
-      const documents = await Dealerships.find({ state: req.params.state });
-      res.json(documents); // Return the dealerships as JSON.
-    } catch (error) {
-      // Handle error and return a 500 status with error message if there is an issue.
-      res.status(500).json({ error: 'Error fetching dealers by state' });
-    }
-  });
-  
-  // Express route to fetch a dealer by a particular ID
-  app.get('/fetchDealer/:id', async (req, res) => {
-    try {
-        const documents = await Dealerships.find({id: req.params.id});
+        const documents = await Dealerships.find();
         res.json(documents);
       } catch (error) {
         res.status(500).json({ error: 'Error fetching documents' });
       }
-    });
-    
+});
+
+// Express route to fetch Dealers by a particular state
+app.get('/fetchDealers/:state', async (req, res) => {
+    try {
+        const dealers = await Dealerships.find({ state: req.params.state });
+        res.json(dealers);
+    } catch (err) {
+         res.status(500).json({ error: 'Error fetching documents' });
+     }
+});
+
+// Express route to fetch dealer by a particular id
+app.get('/fetchDealer/:id', async (req, res) => {
+    try {
+        const documents = await Dealerships.find({ id: req.params.id });
+        res.json(documents);
+      } catch (err) {
+        res.status(500).json({ error: 'Error fetching documents' });
+      }
+});
 
 //Express route to insert review
 app.post('/insert_review', express.raw({ type: '*/*' }), async (req, res) => {
   data = JSON.parse(req.body);
-  const documents = await Reviews.find().sort( { id: -1 } )
-  let new_id = documents[0]['id']+1
+  const documents = await Reviews.find().sort( { id: -1 } );
+  let new_id = documents[0].id+1;
 
   const review = new Reviews({
 		"id": new_id,
-		"name": data['name'],
-		"dealership": data['dealership'],
-		"review": data['review'],
-		"purchase": data['purchase'],
-		"purchase_date": data['purchase_date'],
-		"car_make": data['car_make'],
-		"car_model": data['car_model'],
-		"car_year": data['car_year'],
+		"name": data.name,
+		"dealership": data.dealership,
+		"review": data.review,
+		"purchase": data.purchase,
+		"purchase_date": data.purchase_date,
+		"car_make": data.car_make,
+		"car_model": data.car_model,
+		"car_year": data.car_year,
 	});
 
   try {
